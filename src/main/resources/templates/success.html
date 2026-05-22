@@ -1,52 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{fragments/layout :: head('Attendance Saved')}"></head>
-<body class="d-flex flex-column min-vh-100">
-<nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <head th:replace="~{fragments/layout :: head('Attendance Saved')}"></head>
+  <body class="d-flex flex-column min-vh-100">
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-<main class="container py-5 flex-grow-1">
-    <div class="row justify-content-center">
+    <main class="container py-5 flex-grow-1">
+      <div class="row justify-content-center">
         <div class="col-lg-7">
-            <div class="card shadow-sm border-0 text-center success-card">
-                <div class="card-body p-5">
-                    <div class="success-icon mb-3">&#10003;</div>
-                    <h1 class="h3 mb-3">Attendance Saved Successfully</h1>
+          <div class="card shadow-sm border-0 text-center success-card">
+            <div class="card-body p-5">
+              <div class="success-icon mb-3">&#10003;</div>
+              <h1 class="h3 mb-3">Attendance Saved Successfully</h1>
 
-                    <div th:replace="~{fragments/messages :: alerts}"></div>
+              <div th:replace="~{fragments/messages :: alerts}"></div>
 
-                    <p class="text-muted mb-4">
-                        Attendance for <strong th:text="${studentCount}">0</strong> students has been
-                        recorded and exported to a CSV file.
-                    </p>
+              <p class="text-muted mb-4">
+                Attendance for
+                <strong th:text="${studentCount}">0</strong> students has been
+                recorded and exported to a CSV file.
+              </p>
 
-                    <p th:if="${savedFileName}" class="mb-4">
-                        Generated file:
-                        <code class="user-select-all" th:text="${savedFileName}">attendance_2026_05_20_10_30.csv</code>
-                    </p>
+              <p th:if="${savedFileName}" class="mb-4">
+                Generated file:
+                <code class="user-select-all" th:text="${savedFileName}"
+                  >attendance_2026_05_20_10_30.csv</code
+                >
+              </p>
 
-                    <div class="d-flex flex-wrap justify-content-center gap-3">
-                        <a th:if="${savedFileName}"
-                           th:href="@{/attendance/download/{fileName}(fileName=${savedFileName})}"
-                           class="btn btn-success btn-lg">
-                            Download Attendance CSV
-                        </a>
-                        <a th:href="@{/attendance}" class="btn btn-outline-primary btn-lg">
-                            Back to Attendance Sheet
-                        </a>
-                        <a th:href="@{/}" class="btn btn-outline-secondary btn-lg">
-                            Upload New CSV
-                        </a>
-                    </div>
-                </div>
+              <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a
+                  th:if="${savedFileName}"
+                  th:href="@{/api/attendance/download/{fileName}(fileName=${savedFileName})}"
+                  th:attr="data-download-url=@{/api/attendance/download/{fileName}(fileName=${savedFileName})}, data-download-name=${savedFileName}"
+                  class="btn btn-success btn-lg js-download-csv"
+                >
+                  Download Attendance CSV
+                </a>
+                <a
+                  th:href="@{/attendance}"
+                  class="btn btn-outline-primary btn-lg"
+                >
+                  Back to Attendance Sheet
+                </a>
+                <a th:href="@{/}" class="btn btn-outline-secondary btn-lg">
+                  Upload New CSV
+                </a>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
-</main>
+      </div>
+    </main>
 
-<footer class="text-center text-muted py-3 border-top">
-    <small>Student Attendance Management System</small>
-</footer>
+    <footer class="text-center text-muted py-3 border-top">
+      <small>Student Attendance Management System</small>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.querySelectorAll(".js-download-csv").forEach((link) => {
+        link.addEventListener("click", async (event) => {
+          event.preventDefault();
+
+          const url = link.dataset.downloadUrl;
+          const fileName = link.dataset.downloadName || "attendance.csv";
+
+          try {
+            const response = await fetch(url, { method: "GET" });
+
+            if (!response.ok) {
+              const message = await response.json();
+              alert(message.message || "Download failed.");
+              return;
+            }
+
+            const blob = await response.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = objectUrl;
+            anchor.download = fileName;
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            window.URL.revokeObjectURL(objectUrl);
+          } catch (error) {
+            alert("Download failed. Please try again.");
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

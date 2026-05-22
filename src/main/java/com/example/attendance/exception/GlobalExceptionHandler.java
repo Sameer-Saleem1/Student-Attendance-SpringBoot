@@ -1,5 +1,7 @@
 package com.example.attendance.exception;
 
+import com.example.attendance.controller.AttendanceController;
+import com.example.attendance.controller.HomeController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
@@ -9,7 +11,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
-@ControllerAdvice
+@ControllerAdvice(assignableTypes = {HomeController.class, AttendanceController.class})
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AttendanceException.class)
