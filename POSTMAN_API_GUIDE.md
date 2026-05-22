@@ -167,9 +167,13 @@ Example:
 - Content-Type: `text/csv`
 - Header: `Content-Disposition: attachment; filename="<fileName>"`
 
+This is a file response, so Postman will not show JSON here. A `200 OK` status is expected when the CSV stream is returned successfully.
+
 ### How to use in Postman
 
 In Postman, the response will show as a file download or raw CSV. Use **Send and Download** if you want to save it directly.
+
+If you see `200 OK` with no JSON body, that is still correct for this endpoint because the API is returning the CSV file itself.
 
 ## Suggested Test Order in Postman
 
